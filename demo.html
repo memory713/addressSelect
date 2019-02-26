@@ -2,41 +2,14 @@
 <!DOCTYPE HTML>
 <html>
 <meta charset="utf-8"/>
-<!-- <h3>请按F12打开浏览器控制台</h3>
-<h3>Press F12 to open the console</h3> -->
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<!-- <a href="./test.csv" >点击下载示例csv</a><br /><br /><br /> -->
+<script src="vue.min.js"></script>
 <style type="text/css">
 html{font-size: 12px;}
-.table-head{
-	display: inline-block;
-	margin:5px;
-	background-color: rgba(0,0,0,0.5);
-	color:#fff;
-	padding:5px 10px;
-	border-radius: 10px;
-	cursor:pointer;
-}
-.title{
-	color:blue;
-	font-size: 16px;
-	margin-top:20px;
-	display: inline-block;
-	width: 20%;
-}
-.table-line{
-	line-height: 20px;
-	font-size: 14px;
-	margin:5px;
-	width: 40%;
-}
-.table-li{
-	font-size: 12px;
-	margin-left: 20px;
-	list-style-type: none;
-}
+.table-head{display: inline-block;margin:5px;background-color: rgba(0,0,0,0.5);color:#fff;padding:5px 10px;border-radius: 10px;cursor:pointer;}
+.title{color:blue;font-size: 16px;margin-top:20px;display: inline-block;width: 20%;}
+.table-line{line-height: 20px;font-size: 14px;margin:5px;width: 40%;}
+.table-li{font-size: 12px;margin-left: 20px;list-style-type: none;}
 </style>
-
 <div id="app">
   	<input type="file" name="csvfile" />
 	<input type="button"  @click="csv()" value="图表显示"/>
@@ -62,17 +35,11 @@ html{font-size: 12px;}
 	</div>	
 	</div>
 </div>
-
 <script src="./lib/jquery.js"></script>
 <script src="./lib/papaparse.js"></script>
 <script src="./lib/jschardet.js"></script>
-<!--[if lte IE 9]>
-	<script src="./lib/base64.js"></script>
-<![endif]-->
-
 <script src="csv2arr.js"></script>
 <script>
-
 var app = new Vue({
   el: '#app',
   data: {
@@ -94,7 +61,6 @@ var app = new Vue({
 				data[i]['qu'] = arr[i][2];
 		    }
 		    //打印数组
-		    
 			console.log(data);
 			var map = {},
 			    dest = [];
@@ -118,7 +84,6 @@ var app = new Vue({
 			}
 			console.log(dest);
 			that.dest=dest;
-
 		});
 	},
 	tableLine(name,index){
@@ -129,7 +94,6 @@ var app = new Vue({
 		var map = {},
 		    dest = [];
 		for(var i = 0; i < data.length; i++){
-
 		    var ai = data[i];
 		    if(!map[ai.shi]){
 		        dest.push({
@@ -152,10 +116,8 @@ var app = new Vue({
 		for (var m = 0; m < this.shiAll.length; m++) {
 			this.quCheck(m)
 		}
-		
 	},
 	quCheck(index){
-
 		var data = this.shiAll[index].data
 		var map = {},
 		    dest = [];
@@ -177,23 +139,10 @@ var app = new Vue({
 		        }
 		    }
 		}
-
 		this.quAll.push(dest)
 		console.log(this.quAll)
 	}
 } 
 })
-
 </script>
-
-
 </html>
-<!-- // var tblStr = "<table border='1'>";
-		// $.each( arr, function(i, line){
-		// 	tblStr += "<tr>";
-		// 	$.each( line, function(i, cell){
-		// 		tblStr += "<td>"+cell+"</td>";
-		// 	});
-		// 	tblStr += "</tr>";
-		// });
-		// $("#resTbl").html( tblStr ); -->

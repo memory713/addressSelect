@@ -1,8 +1,7 @@
-
 <!DOCTYPE HTML>
 <html>
 <meta charset="utf-8"/>
-<script src="vue.min.js"></script>
+<script src="./lib/vue.min.js"></script>
 <style type="text/css">
 html{font-size: 12px;}
 .table-head{display: inline-block;margin:5px;background-color: rgba(0,0,0,0.5);color:#fff;padding:5px 10px;border-radius: 10px;cursor:pointer;}
@@ -34,12 +33,39 @@ html{font-size: 12px;}
 		</div>
 	</div>	
 	</div>
+	<!-- echats -->
+	<div id="myChart" :style="{width: '100%', height: '600px'}"></div>
 </div>
 <script src="./lib/jquery.js"></script>
 <script src="./lib/papaparse.js"></script>
 <script src="./lib/jschardet.js"></script>
-<script src="csv2arr.js"></script>
+<script src="./lib/csv2arr.js"></script>
+<script src="./lib/echarts.js"></script>
+<script src="./lib/china.js"></script>
 <script>
+function randomData() {  
+     return Math.round(Math.random()*100);  
+} 
+var mydata = [  
+    {name: '北京',value: '100' },{name: '天津',value: randomData() },  
+    {name: '上海',value: randomData() },{name: '重庆',value: randomData() },  
+    {name: '河北',value: randomData() },{name: '河南',value: randomData() },  
+    {name: '云南',value: randomData() },{name: '辽宁',value: randomData() },  
+    {name: '黑龙江',value: randomData() },{name: '湖南',value: randomData() },  
+    {name: '安徽',value: randomData() },{name: '山东',value: randomData() },  
+    {name: '新疆',value: randomData() },{name: '江苏',value: randomData() },  
+    {name: '浙江',value: randomData() },{name: '江西',value: randomData() },  
+    {name: '湖北',value: randomData() },{name: '广西',value: randomData() },  
+    {name: '甘肃',value: randomData() },{name: '山西',value: randomData() },  
+    {name: '内蒙古',value: randomData() },{name: '陕西',value: randomData() },  
+    {name: '吉林',value: randomData() },{name: '福建',value: randomData() },  
+    {name: '贵州',value: randomData() },{name: '广东',value: randomData() },  
+    {name: '青海',value: randomData() },{name: '西藏',value: randomData() },  
+    {name: '四川',value: randomData() },{name: '宁夏',value: randomData() },  
+    {name: '海南',value: randomData() },{name: '台湾',value: randomData() },  
+    {name: '香港',value: randomData() },{name: '澳门',value: randomData() }  
+];
+console.log(mydata)
 var app = new Vue({
   el: '#app',
   data: {
@@ -47,8 +73,64 @@ var app = new Vue({
     name:'',
     shiAll:'',
     quAll:[],
+    mydata:'',
+  },
+  mounted(){
+    
   },
   methods:{
+  	line1(){
+  		console.log("this.mydata == " +this.mydata)
+  		var that = this;
+  		// 基于准备好的dom，初始化echarts实例
+        let myChart = echarts.init(document.getElementById('myChart'))
+        // 绘制图表       
+      	let option = {
+      			backgroundColor: '#F0C674',  
+                title: {  
+                    text: '全国地图大数据', 
+                    color:'#DE935E' ,
+                    subtext: '',  
+                    x:'center'  
+                },  
+                tooltip : {  
+                    trigger: 'item',                  
+                },  
+                
+                //左侧小导航图标
+                visualMap: {  
+                    show : true,  
+                    x: 'left',  
+                    y: 'center',  
+                    splitList: [   
+                        {start: 125, end:1000},{start: 100, end: 125},  
+                        {start: 75, end: 100},{start: 50, end: 75},  
+                        {start: 25, end: 50},{start: 0, end: 25},  
+                    ],  
+                    color: ['#AC3720',  '#2975E6','#EC998B', '#C9662D','#1C6F5E','#8ABEB7',]  
+                },  
+                
+                //配置属性
+                series: [{  
+                    name: '数据',  
+                    type: 'map',  
+                    mapType: 'china',   
+                    roam: true,  
+                    label: {  
+                        normal: {  
+                            show: true  //省份名称  
+                        },  
+                        emphasis: {  
+                            show: false  
+                        }  
+                    },  
+                    data:that.mydata  //数据
+                }]  
+        };
+        myChart.setOption(option);
+
+    
+  	},
   	csv(){
   		var that = this;
 		$("input[name=csvfile]").csv2arr(function(arr){
@@ -61,7 +143,6 @@ var app = new Vue({
 				data[i]['qu'] = arr[i][2];
 		    }
 		    //打印数组
-			console.log(data);
 			var map = {},
 			    dest = [];
 			for(var i = 0; i < data.length; i++){
@@ -82,9 +163,27 @@ var app = new Vue({
 			        }
 			    }
 			}
-			console.log(dest);
 			that.dest=dest;
+			// echats data reset
+			that.echatsData(dest)
 		});
+		
+	},
+	// echats data reset 
+	echatsData(Data){
+		console.log(Data)
+		/*图表数据*/
+		var EchatsFormData = [];
+		for (var i = 0; i < Data.length; i++) {
+			var ai = Data[i];
+			EchatsFormData.push({
+	            name:  ai.Group.replace("省",""),
+	            value: ai.data.length
+	        });
+		}
+		console.log(EchatsFormData)
+		this.mydata = EchatsFormData;
+		this.line1();
 	},
 	tableLine(name,index){
 		this.quAll = []

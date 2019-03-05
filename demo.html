@@ -12,8 +12,17 @@ html{font-size: 12px;}
 <div id="app">
   	<input type="file" name="csvfile" />
 	<input type="button"  @click="csv()" value="图表显示"/>
+	<!-- table -->
+	<button type="button" id="btnExport" >导出Excel</button>
+	<div id="myDiv">
+	  <table  id="tableExcel" width="100%" border="1" cellspacing="0" cellpadding="0">
+	    <!-- 表头 -->
+	    <tr v-for="(item,index) in dest"><td align="center">{{item.Group}}{{item.data.length}}</td><td v-for="item2 in item.addPart">{{item2.shi}} {{item.data.length}}</td></tr>
+	  </table>
+	</div>
+	<!-- table end -->
 	<div>
-		<div v-for="(item,index) in dest" class="table-head" @click="tableLine(item.Group,index)">
+		<div v-for="(item,index) in dest" class="table-head" @click="tableLine(item.Group,index,false)">
 			{{item.Group}}<span style="color:orange;margin-left: 10px;"> {{item.data.length}}</span>
 		</div>
 	</div>
@@ -42,30 +51,34 @@ html{font-size: 12px;}
 <script src="./lib/csv2arr.js"></script>
 <script src="./lib/echarts.js"></script>
 <script src="./lib/china.js"></script>
+<script src="./lib/jquery.table2excel.js"></script>
+<script language="JavaScript" type="text/javascript">
+    $(document).ready(function () {
+      $("#btnExport").click(function () {
+        $("#tableExcel").table2excel({
+          exclude : ".noExl", //过滤位置的 css 类名
+          filename : "李宗泽是个傻子" + getdate() + ".xls", //文件名称
+          name: "Excel Document Name.xlsx",
+          exclude_img: true,
+          exclude_links: true,
+          exclude_inputs: true
+        });
+      });
+      // 时间戳
+      function getdate() {
+            var now = new Date(),
+            y = now.getFullYear(),
+            m = now.getMonth() + 1,
+            d = now.getDate();
+            return y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d) + " " + now.toTimeString().substr(0, 8);
+        }
+    });
+</script>
 <script>
 function randomData() {  
      return Math.round(Math.random()*100);  
 } 
-var mydata = [  
-    {name: '北京',value: '100' },{name: '天津',value: randomData() },  
-    {name: '上海',value: randomData() },{name: '重庆',value: randomData() },  
-    {name: '河北',value: randomData() },{name: '河南',value: randomData() },  
-    {name: '云南',value: randomData() },{name: '辽宁',value: randomData() },  
-    {name: '黑龙江',value: randomData() },{name: '湖南',value: randomData() },  
-    {name: '安徽',value: randomData() },{name: '山东',value: randomData() },  
-    {name: '新疆',value: randomData() },{name: '江苏',value: randomData() },  
-    {name: '浙江',value: randomData() },{name: '江西',value: randomData() },  
-    {name: '湖北',value: randomData() },{name: '广西',value: randomData() },  
-    {name: '甘肃',value: randomData() },{name: '山西',value: randomData() },  
-    {name: '内蒙古',value: randomData() },{name: '陕西',value: randomData() },  
-    {name: '吉林',value: randomData() },{name: '福建',value: randomData() },  
-    {name: '贵州',value: randomData() },{name: '广东',value: randomData() },  
-    {name: '青海',value: randomData() },{name: '西藏',value: randomData() },  
-    {name: '四川',value: randomData() },{name: '宁夏',value: randomData() },  
-    {name: '海南',value: randomData() },{name: '台湾',value: randomData() },  
-    {name: '香港',value: randomData() },{name: '澳门',value: randomData() }  
-];
-console.log(mydata)
+var mydata = [];
 var app = new Vue({
   el: '#app',
   data: {
@@ -80,7 +93,6 @@ var app = new Vue({
   },
   methods:{
   	line1(){
-  		console.log("this.mydata == " +this.mydata)
   		var that = this;
   		// 基于准备好的dom，初始化echarts实例
         let myChart = echarts.init(document.getElementById('myChart'))
@@ -128,8 +140,6 @@ var app = new Vue({
                 }]  
         };
         myChart.setOption(option);
-
-    
   	},
   	csv(){
   		var that = this;
@@ -166,12 +176,14 @@ var app = new Vue({
 			that.dest=dest;
 			// echats data reset
 			that.echatsData(dest)
+			/*table*/
+			for (var i = 0; i < dest.length; i++) {
+				that.tableLine(dest[i].Group,i,true)
+			}
 		});
-		
 	},
 	// echats data reset 
 	echatsData(Data){
-		console.log(Data)
 		/*图表数据*/
 		var EchatsFormData = [];
 		for (var i = 0; i < Data.length; i++) {
@@ -181,13 +193,11 @@ var app = new Vue({
 	            value: ai.data.length
 	        });
 		}
-		console.log(EchatsFormData)
 		this.mydata = EchatsFormData;
 		this.line1();
 	},
-	tableLine(name,index){
-		this.quAll = []
-		console.log(this.dest[index].data)
+	tableLine(name,index,turnOn){
+		this.quAll = []		
 		var data = this.dest[index].data
 		this.name = name
 		var map = {},
@@ -211,7 +221,13 @@ var app = new Vue({
 		    }
 		}
 		console.log(dest);
-		this.shiAll=dest;
+		this.dest[index].addPart = dest
+		console.log(this.dest);
+		if(turnOn){
+
+		}else{
+			this.shiAll=dest;
+		}
 		for (var m = 0; m < this.shiAll.length; m++) {
 			this.quCheck(m)
 		}
@@ -239,7 +255,6 @@ var app = new Vue({
 		    }
 		}
 		this.quAll.push(dest)
-		console.log(this.quAll)
 	}
 } 
 })

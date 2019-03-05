@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>动态创建纵向列表</title>
+<style type="text/css">
+a { color: #000; text-decoration: none; }
+a:hover { color: #F00; }
+#menu { width: 100px; border: 1px solid #CCC; border-bottom:none;}
+#menu ul { list-style: none; margin: 0px; padding: 0px; }
+#menu ul li { background: #eee; padding: 0px 8px; height: 26px; line-height: 26px; border-bottom: 1px solid #CCC; position:relative; }
+#menu ul li ul { display:none; position: absolute; left: 100px; top: 0px; width:100px;border:1px solid #ccc; border-bottom:none; }
+#menu ul li.current ul { display:block;} 
+#menu ul li ul li{text-align:center;}  /*设置城市内容居中*/
+</style>
+<script type="text/javascript">
+var provs = { "江西省": ["南昌市", "景德镇", "九江", "鹰潭", "萍乡", "新馀", "赣州", "吉安", "宜春", "抚州", "上饶"],
+  "福建省": ["福州", "厦门", "莆田", "三明", "泉州", "漳州", "南平", "龙岩", "宁德"],
+  "河北省": ["石家庄", "邯郸", "邢台", "保定", "张家口", "承德", "廊坊", "唐山", "秦皇岛", "沧州", "衡水"],
+  "四川省": ["成都市", "自贡市", "攀枝花市", "泸州市", "德阳市", "绵阳市", "广元市", "遂宁市", "内江市", "乐山市", "南充市", "眉山市", "宜宾市", "广安市", "达州市", "雅安市", "巴中市", "资阳市", "阿坝藏族羌族自治州", "甘孜藏族自治州", "凉山彝族自治州"],
+  "山西省": ["太原市", "大同市", "阳泉市", "长治市", "晋城市", "朔州市", "晋中市", "运城市", "忻州市", "临汾市", "吕梁市"],
+  "内蒙古": ["呼和浩特市", "包头市", "乌海市", "赤峰市", "通辽市", "鄂尔多斯市", "呼伦贝尔市", "巴彦淖尔市", "乌兰察布市", "兴安盟", "锡林郭勒盟", "阿拉善盟"],
+  "海南省": ["海口市", "三亚市"], "重庆市": ["重庆"], 
+  "贵州省": ["贵阳市", "六盘水市", "遵义市", "安顺市", "铜仁地区", "黔西南布依族苗族自治州", "毕节地区", "黔东南苗族侗族自治州", "黔南布依族苗族自治州"],
+  "甘肃省": ["兰州市", "嘉峪关市", "金昌市", "白银市", "天水市", "武威市", "张掖市", "平凉市", "酒泉市", "庆阳市", "定西市", "陇南市", "临夏回族自治州", "甘南藏族自治州"],
+  "青海省": ["西宁市", "海东地区", "海北藏族自治州", "黄南藏族自治州", "海南藏族自治州", "果洛藏族自治州", "玉树藏族自治州", "海西蒙古族藏族自治州"],
+  "宁夏自治区": ["银川市", "石嘴山市", "吴忠市", "固原市", "中卫市"]
+};
+function iniEvent() {
+  var provUL = document.getElementById("prov");
+  if (provUL) {
+    var allli = provUL.getElementsByTagName("li");
+    for (i = 0; i < allli.length; i++) {
+      node = allli[i];
+      node.onmouseover = function () { //鼠标经过时显示层
+        this.className = "current";
+      }
+      node.onmouseout = function () { //鼠标离开时隐藏层
+        this.className = this.className.replace("current", "");
+      }
+    }
+  }
+}
+function loadData() {      
+  var provUL = document.getElementById("prov");
+  var nIndex = 0;
+  for (var key in provs) {
+    var provLi = document.createElement("li");
+    provLi.id = "provLI" + nIndex;
+    provLi.innerHTML = "<a href='#'>" + key + "</a>";
+    provUL.appendChild(provLi);    //添加省份li
+    //================添加城市========================
+    var citys = provs[key];
+    if (citys.length > 0) {
+      var cityUL = document.createElement("ul");
+      var maxLength = 0; //存放最大城市内容的长度，以便后面设置cityUL的最大宽度，达到宽度自适应
+      for (var i = 0; i < citys.length; i++) {
+        var cityName = citys[i];
+        if (cityName.length > maxLength) {
+          maxLength = cityName.length; //提取最大长度的城市
+        }
+        var cityLI = document.createElement("li");
+        cityLI.id = "cityLI" + i;
+        cityLI.innerHTML = "<a href='#'>" + cityName + "</a>";
+        cityUL.appendChild(cityLI);
+      }
+      if (maxLength <= 6) {
+        maxLength = 100;
+      }
+      else {
+        maxLength = maxLength * 20;
+        //这里乘以20主要是按一个字20px来算
+      }
+      maxLength = maxLength + "px"; //加上像素的px后缀
+      cityUL.style.width= maxLength; //设置cityUL的最大宽度
+      provLi.appendChild(cityUL); //添加城市UL
+    }
+    nIndex++;
+  }
+  iniEvent();  //初始化事件
+}
+</script>
+</head>
+<body onload ="loadData()">
+<div id="menu">
+<ul id="prov">
+</ul>
+</div>  
+</body>
+</html>
